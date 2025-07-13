@@ -10,8 +10,10 @@ export default function SimpleCheckBox({
   defaultChecked,
   name,
   label,
+  error,
 }: ISimpleCheckBox) {
-  const [checked, setChecked] = useState(true);
+  const errorMessage = error && error[name];
+  const [checked, setChecked] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
@@ -26,6 +28,7 @@ export default function SimpleCheckBox({
           defaultChecked={defaultChecked}
           checked={checked}
           onChange={handleChange}
+          sx={{ color: errorMessage && 'error.light' }}
         />
       }
       label={label}

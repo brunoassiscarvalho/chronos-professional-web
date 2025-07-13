@@ -4,15 +4,12 @@ import { urlApi } from '../utils/Constants';
 import HttpException from './HttpException';
 
 axios.defaults.baseURL = urlApi;
-// axios.defaults.timeout = 10000;
-export default class Service {
+axios.defaults.timeout = Number(process.env.TIMEOUT) || 10000;
 
+export default class Service {
   public async requestBasic(method: Method, url: string, data?: any) {
     const headers: any = {};
-    return await this.executeRequest(
-      url,
-      this.objectRequest(method, data, headers),
-    );
+    return this.executeRequest(url, this.objectRequest(method, data, headers));
   }
 
   public async sendRequest(
@@ -22,17 +19,11 @@ export default class Service {
   ): Promise<any> {
     if (params?.password && params?.email) {
       const { email, password, ...rest } = params;
-      return await this.requestAuthentication(
-        method,
-        url,
-        email,
-        password,
-        rest,
-      );
+      return this.requestAuthentication(method, url, email, password, rest);
     } else if (getToken()) {
-      return await this.requestSecure(method, url, params);
+      return this.requestSecure(method, url, params);
     } else {
-      return await this.requestBasic(method, url, params);
+      return this.requestBasic(method, url, params);
     }
   }
   private objectRequest(
@@ -49,7 +40,7 @@ export default class Service {
     return { ...values, ...(!!data && { data: data }) };
   }
   private async requestSecure(method: Method, url: string, data?: any) {
-    return await this.requestServer(method, url, data, 'Bearer');
+    return this.requestServer(method, url, data, 'Bearer');
   }
 
   private async requestAuthentication(
@@ -60,15 +51,12 @@ export default class Service {
     data: any,
   ) {
     const XFactor = window.btoa(`${email}:${password}`);
-    const token = `Bearer ${getToken()}`;
+    const token = !!getToken() && `Bearer ${getToken()}`;
     const headers: any = {
       'x-factor': `Basic ${XFactor}`,
       ...(token && { Authorization: token }),
     };
-    return await this.executeRequest(
-      url,
-      this.objectRequest(method, data, headers),
-    );
+    return this.executeRequest(url, this.objectRequest(method, data, headers));
   }
   private async requestServer(
     method: Method,
@@ -79,10 +67,7 @@ export default class Service {
     const headers: any = {
       Authorization: `${tokenType} ${getToken()}`,
     };
-    return await this.executeRequest(
-      url,
-      this.objectRequest(method, data, headers),
-    );
+    return this.executeRequest(url, this.objectRequest(method, data, headers));
   }
 
   private async executeRequest(
@@ -93,39 +78,31 @@ export default class Service {
       const resp = await axios(url, data);
       return resp.data;
     } catch (error: any) {
-      if (!error?.response?.data)
-        throw new HttpException('Erro ao autorizar!', 'FH-AUTH-0002', error);
-
-      const { message, internalCode, info }: HttpException =
-        error.response.data;
-
       if (error.response?.status === 401) {
         localStorage.clear();
-        console.log({ location: window.location.pathname });
         if (
           window.location.pathname !== '/' &&
           window.location.pathname !== '/login'
         )
           window.location.assign(window.location.origin);
 
-        throw new HttpException(
-          message || 'Não autorizado!',
-          internalCode,
-          info,
-        );
+        throw new HttpException('Não autorizado!', 'UNAUTHORIZED', error);
       } else if (error.response?.status === 404) {
-        throw new Error('Serviço não localizado');
-      } else {
-        if (error.message)
-          throw new HttpException(error.message, 'FH-AUTH-0001', error);
-
+        throw new HttpException('Serviço não localizado', 'NOT_FOUND', error);
+      } else if (error?.response?.data?.message) {
+        const { message, internalCode, info } = error.response.data;
+        throw new HttpException(message, internalCode, info);
+      } else if (error?.message) {
         throw new HttpException(
-          error?.response?.data?.message ||
-            'Não foi possivel prosseguir com a solicitação',
-          internalCode,
-          info,
+          error.code === 'ERR_NETWORK'
+            ? 'Sem conexão'
+            : 'Erro ao executar a operação',
+          error.code,
+          error,
         );
       }
+
+      throw new HttpException('Erro ao executar', 'GENERIC_EXCEPTION', error);
     }
   }
 }

@@ -1,12 +1,28 @@
+import { Positions, Roles } from '../utils/TypeEnums';
 
-export interface IProfessionalBasic {
+export interface IProfessional {
+  _id: string;
   name: string;
   email: string;
-  position:string;
+  image?: string;
+  phone?: string;
+  cep?: string;
+  status?: number;
+  role: Roles;
+  position: Positions;
+}
+
+export type IProfessionalBasic = Pick<
+  IProfessional,
+  '_id' | 'name' | 'email' | 'position' | 'role'
+>;
+
+export interface IProfessionalSession extends IProfessionalBasic {
+  token: string;
 }
 
 export interface IProfessionalLogged extends IProfessionalBasic {
-  token: string;
+  userId: string;
 }
 
 export interface IProfessionalSecurity {
@@ -14,15 +30,15 @@ export interface IProfessionalSecurity {
   password: string;
 }
 
-export interface IProfessionalRegister extends IProfessionalBasic, IProfessionalSecurity {
+export interface IProfessionalRegister
+  extends IProfessionalBasic,
+    IProfessionalSecurity {
   cep: number;
-  phone: number;  
+  phone: number;
 }
 
 export interface IProfessionalBasicData {
   position: any;
-  _id:any;
+  _id: any;
   name: string;
 }
-
-

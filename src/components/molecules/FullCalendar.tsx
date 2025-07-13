@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import ReactFullCalendar, {
-  EventClickArg,
-  EventContentArg,
-} from '@fullcalendar/react'; // must go before plugins
+import React from 'react';
+import ReactFullCalendar from '@fullcalendar/react'; // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid'; // a plugin!
-import timeGridPlugin from '@fullcalendar/timegrid';
-import { Box, Button, ButtonBase, ButtonGroup, Grid } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { Box, Button, ButtonGroup, Grid } from '@mui/material';
+import { IAppointment } from '../../interfaces/Appointment';
 
 interface IFullCalendar {
   events?: any;
@@ -24,9 +22,19 @@ export default function FullCalendar({
 }: IFullCalendar) {
   const calendarRef = React.createRef<any>();
 
-  useEffect(() => {
-    console.log({ events });
-  }, [events]);
+  const tratedEvents: IAppointment[] | undefined = events?.map((event: any) => {
+    if (event.start && event.end) {
+      return {
+        ...event,
+        extendedProps: event,
+        title: event?.patient?.name || 'Disponível',
+        backgroundColor: event.patient ? 'red' : 'gray',
+        borderColor: event.patient ? 'red' : 'gray',
+        id: event._id,
+      };
+    }
+    return event;
+  });
 
   function goToHoje() {
     const calendarApi = calendarRef.current.getApi();
@@ -65,8 +73,8 @@ export default function FullCalendar({
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <ButtonGroup
             sx={{ marginRight: 3 }}
-            variant="contained"
-            aria-label="outlined primary button group"
+            variant="outlined"
+            color="secondary"
           >
             <Button onClick={prev}>
               <ChevronLeft />
@@ -75,13 +83,12 @@ export default function FullCalendar({
               <ChevronRight />
             </Button>
           </ButtonGroup>
-          <Button onClick={goToHoje}>Hoje</Button>
+          <Button variant="outlined" color="secondary" onClick={goToHoje}>
+            Hoje
+          </Button>
         </Box>
         <Box>
-          <ButtonGroup
-            variant="contained"
-            aria-label="outlined primary button group"
-          >
+          <ButtonGroup variant="outlined" color="secondary">
             <Button onClick={() => changeView('dayGridMonth')}>Mês</Button>
             <Button onClick={() => changeView('timeGridWeek')}>Semana</Button>
             <Button onClick={() => changeView('timeGridDay')}>Dia</Button>
@@ -98,24 +105,20 @@ export default function FullCalendar({
             center: 'title',
             right: '',
           }}
+          eventTimeFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false,
+          }}
           editable={selectable}
           selectable={selectable}
           select={onSelectTime}
           allDaySlot={false}
-          initialEvents={events}
+          initialEvents={tratedEvents}
           locale="pt-br"
           eventClick={clickHandler}
         />
       </Grid>
     </Grid>
-  );
-}
-
-function renderEventContent(eventContent: EventContentArg) {
-  return (
-    <ButtonBase>
-      <b>{eventContent.timeText}</b>
-      <i>{eventContent.event.title}</i>
-    </ButtonBase>
   );
 }

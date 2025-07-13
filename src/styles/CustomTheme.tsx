@@ -4,28 +4,33 @@ import { ptBR } from '@mui/material/locale';
 
 const customTheme: Theme = createTheme(
   {
-    components: {     
+    components: {
       MuiButton: {
         defaultProps: {
           variant: 'contained',
-        }
-      }
+        },
+      },
     },
     palette: {
       primary: {
-        main: '#0B2A97',
+        main: '#195CA3',
+        // light: '#C9DEA1',
       },
       secondary: {
-        main: green[800],
+        main: '#7FB11F',
+        light: '#C9DEA1',
       },
       background: {
-        default: grey[300],
+        default: '#FAFAFA',
+
+        // default: '#D8EAB5',
+        // paper: '#D8EAB5',
       },
     },
     typography: {
-      h5: {
-        textAlign: 'center',
-      },
+      // h5: {
+      //   textAlign: 'center',
+      // },
       // fontFamily: [
       //   'Geomanist Regular',
       //   'Geomanist Black',

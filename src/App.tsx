@@ -12,7 +12,7 @@ export default function App(): JSX.Element {
       <CssBaseline />
       <SnackbarProvider
         maxSnack={3}
-        // action={(key) => <SnackbarCloseButton snacKey={key} />}
+        action={(key) => <SnackbarCloseButton snacKey={key} />}
       >
         <Router />
       </SnackbarProvider>

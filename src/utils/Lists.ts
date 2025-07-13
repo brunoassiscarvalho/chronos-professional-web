@@ -1,0 +1,68 @@
+export const cancerTypes: any = [
+  { key: 'adrenal', text: 'Adrenal' },
+  { key: 'anus', text: 'Ânus' },
+  { key: 'bexiga', text: 'Bexiga' },
+  { key: 'cabeca', text: 'Cabeça (cérebro, meninge, por exemplo)' },
+  { key: 'coracao', text: 'Coração' },
+  { key: 'colorretal', text: 'Colorretal' },
+  { key: 'estomago', text: 'Estômago' },
+  { key: 'figado', text: 'Fígado' },
+  { key: 'intestino', text: 'Intestino' },
+  { key: 'laringe', text: 'Laringe' },
+  { key: 'traqueia', text: 'traqueia (gaganta)' },
+  { key: 'leucemia', text: 'Leucemia' },
+  { key: 'linfoma', text: 'Linfoma' },
+  { key: 'lingua', text: 'Língua' },
+  { key: 'mama', text: 'Mama' },
+  { key: 'mediastino', text: 'Mediastino' },
+  { key: 'mieloma', text: 'Mieloma' },
+  { key: 'Nariz', text: 'Nariz' },
+  { key: 'olho', text: 'Olho' },
+  { key: 'osso', text: 'Osso' },
+  { key: 'ovario', text: 'Ovário' },
+  { key: 'pancreas', text: 'Pâncreas' },
+  { key: 'pele', text: 'Pele' },
+  { key: 'penis', text: 'Pênis' },
+  { key: 'pericardio', text: 'Pericárdio' },
+  { key: 'peritonio', text: 'Peritônio' },
+  { key: 'pleura', text: 'Pleura' },
+  { key: 'prostata', text: 'Próstata' },
+  { key: 'pulmao', text: 'Pulmão' },
+  { key: 'rim', text: 'Rim ou ureter' },
+  { key: 'sarcoma', text: 'Sarcoma' },
+  { key: 'testiculo', text: 'Testículo' },
+  { key: 'tireoide', text: 'Tireóide' },
+  { key: 'Útero', text: 'Útero' },
+  { key: 'vagina', text: 'Vagina' },
+  { key: 'vesicula', text: 'Vesícula' },
+  { key: 'biliar', text: 'biliar' },
+];
+
+export const cancerStages: any = [
+  { key: 'SUSPECTED_ONCOLOGY', text: 'Suspeita oncológica' },
+  {
+    key: 'WAIT_MEDICINE',
+    text: 'Aguardando início do tratamento com medicamento',
+  },
+  {
+    key: 'HOLDING_SURGERY',
+    text: 'Aguardando início do tratamento cirúrgico',
+  },
+  {
+    key: 'ON_TREATMENT_CHEMOTHERAPY',
+    text: 'Em tratamento atual (quimioterapia, radioterapia ou imunoterapia)',
+  },
+  { key: 'ON_TREATMENT_HORMONES', text: 'Em tratamento atual com hormônios' },
+  {
+    key: 'DISCHARGE_TREATMENT',
+    text: 'Alta de tratamento (acompanhamento clínico)',
+  },
+  { key: 'PALLIATIVE_CARE', text: 'Cuidados paliativos' },
+];
+
+export const genders: string[] = [
+  'Masculino',
+  'Feminino',
+  'Outros',
+  'Não desejo informar',
+];

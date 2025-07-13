@@ -1,19 +1,30 @@
 import { IAppointment } from '../../interfaces/Appointment';
-import { IProfessional } from '../../interfaces/User';
+import { IProfessional } from '../../interfaces/Professional';
+import { IUser } from '../../interfaces/User';
 import Service from '../../services/Service';
 
 export default class ScheduleService extends Service {
-  async getProfessionals(): Promise<IProfessional[]> {
-    const res = await this.sendRequest('GET', '/professional');
-    return res;
+  async getProfessionals(): Promise<IUser[]> {
+    return this.sendRequest('GET', '/professional');
+  }
+
+  async getProfessional(professionalID: string): Promise<IProfessional> {
+    return this.sendRequest('GET', `/professional/${professionalID}`);
   }
 
   async saveSchedule(params: IAppointment) {
-    const res = await this.sendRequest('PATCH', '/appointment/patient', params);
-    return res;
+    return this.sendRequest('PATCH', '/appointment/patient', params);
   }
-  async getNextSchedule() {
-    const res = await this.sendRequest('GET', '/appointment?last=10');    
-    return res;
+
+  async includeScheduleBatch(params: IAppointment) {
+    return this.sendRequest('POST', '/appointment/batch', params);
+  }
+
+  async deleteScheduleBatch(params: IAppointment) {
+    return this.sendRequest('DELETE', '/appointment/batch', params);
+  }
+
+  async getNextSchedule(params?: any) {
+    return this.sendRequest('GET', '/appointment', params);
   }
 }

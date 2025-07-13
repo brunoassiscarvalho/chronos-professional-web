@@ -18,7 +18,6 @@ export default function ResendMailConfirmation({
   const { enqueueSnackbar } = useSnackbar();
 
   const createNewUser = (newUser: any) => {
-    console.log({ newUser });
     service
       .sendVerificationMail(newUser)
       .then(() => {

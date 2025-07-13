@@ -1,61 +1,113 @@
 import {
-  Box,
+  CSSObject,
   Divider,
-  Drawer,
+  Drawer as MuiDrawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
+  styled,
+  Theme,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { ReactComponent as Schedule } from '../../assets/schedule.svg';
-import { ReactComponent as Chat } from '../../assets/chat.svg';
-import { ReactComponent as Tele } from '../../assets/tele.svg';
-import { ReactComponent as Home } from '../../assets/home.svg';
 import { useNavigate } from 'react-router-dom';
 import { memo } from 'react';
-import { Inbox, Mail } from '@mui/icons-material';
 
-interface IMenuItem {
-  key: string;
-  title: string;
-  Icon?: any;
+import { IProfessionalLogged } from '../../interfaces/Professional';
+import DrawerHeader from '../atoms/DrawerHeader';
+import { generateMenu, IMenuItem } from '../../router/RolesService';
+import { routerConfig } from '../../router/RouterConfig';
+
+const drawerWidth = 240;
+
+const openedMixin = (theme: Theme): CSSObject => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
+const closedMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+}));
+
+interface IMenu {
+  user: IProfessionalLogged;
 }
 
-const items: IMenuItem[] = [
-  { key: '', title: 'Início', Icon: Home },
-  { key: 'agenda', title: 'Agenda', Icon: Schedule },
-  { key: 'consulta', title: 'Consulta', Icon: Tele },
-  { key: 'chat', title: 'Chat', Icon: Chat },
-];
-
-export default memo(function Menu() {
+export default memo(function Menu({ user }: IMenu) {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const open = useMediaQuery(theme.breakpoints.up('md'));
   return (
-    <Box
-      sx={{
-        overflow: 'auto',
-        paddingTop: 15,
-        backgroundColor: 'white',
-        width: '100%',
-        height: '100%',
-      }}
-    >
+    <Drawer variant="permanent" open={open}>
+      <DrawerHeader />
       <Divider />
-      <List>
-        {items.map(({ key, title, Icon }) => (
-          <ListItem key={key} disablePadding>
-            <ListItemButton onClick={() => navigate(key)}>
-              <ListItemIcon>
-                <Icon width={25} height={25}></Icon>
-              </ListItemIcon>
-              <ListItemText primary={title} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+      <List sx={{ paddingTop: 5 }}>
+        {generateMenu(user, routerConfig)?.map(
+          ({ key, title, Icon }: IMenuItem) => (
+            <ListItem key={key} disablePadding sx={{ display: 'block' }}>
+              <ListItemButton
+                onClick={() => navigate(key)}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon width={25} height={25}></Icon>
+                  </ListItemIcon>
+                </ListItemIcon>
+                <ListItemText primary={title} sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </ListItem>
+          ),
+        )}
       </List>
       <Divider />
-    </Box>
+    </Drawer>
   );
 });

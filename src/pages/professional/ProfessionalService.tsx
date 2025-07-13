@@ -3,21 +3,39 @@ import Service from '../../services/Service';
 import { IProfessionalRegister } from '../../interfaces/Professional';
 
 export default class ProfessionalService extends Service {
-  private baseUrl = '/patient';
+  private baseUrl = '/professional';
 
   async createProfessional(params: IProfessionalRegister) {
-    console.log({ params });
-    const res = await this.sendRequest('POST', this.baseUrl, params);
-    return res;
+    return this.sendRequest('POST', this.baseUrl, params);
+  }
+
+  async getProfessionals() {
+    return this.sendRequest('GET', this.baseUrl);
+  }
+
+  async getProfessional(pofessionalId: string) {
+    return this.sendRequest('GET', `${this.baseUrl}/${pofessionalId}`);
+  }
+
+  async updateProfessional(params: IProfessionalRegister) {
+    return this.sendRequest('PUT', this.baseUrl, params);
   }
 
   async sendVerificationMail(params: IProfessionalRegister) {
-    console.log({ params });
-    const res = await this.sendRequest(
+    return this.sendRequest(
       'POST',
       this.baseUrl + '/verification-mail',
       params,
     );
-    return res;
+  }
+
+  async sendResetPassEmail(email: string) {
+    return this.sendRequest('POST', this.baseUrl + '/admin/pass', { email });
+  }
+
+  async resendMailValidation(email: string) {
+    return this.sendRequest('POST', this.baseUrl + '/admin/mail', {
+      email,
+    });
   }
 }

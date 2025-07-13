@@ -1,5 +1,5 @@
-export interface IProfessional{
-  _id:string,
-  name: string,
-  position: string
+export interface IUser {
+  _id: string;
+  name: string;
+  position: string;
 }

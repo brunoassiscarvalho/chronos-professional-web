@@ -1,33 +1,76 @@
-import { Box, Grid, Paper } from '@mui/material';
-
-import { Outlet, useNavigate } from 'react-router-dom';
-import Menu from '../../components/organisms/Menu';
+import { Box, Paper, Theme, useMediaQuery } from '@mui/material';
+import { Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/organisms/Navbar';
 import { getUser } from '../../utils/Api';
+import Home from '../home/Home';
 
-export default function Main(): JSX.Element {
+import DrawerHeader from '../../components/atoms/DrawerHeader';
+import NoMatch from '../../components/molecules/NoMatch';
+import MenuTab from '../../components/organisms/MenuTab';
+import SimpleBottomNavigation from '../../components/organisms/SimpleBottomNavigation';
+import { IProfessionalLogged } from '../../interfaces/Professional';
+import { generateRoutes, ProfileRoutes } from '../../router/RolesService';
+import { routerConfig } from '../../router/RouterConfig';
+
+interface IUserRoutes {
+  user: IProfessionalLogged;
+}
+
+const generateUserRoute = (routes: ProfileRoutes[]) => {
+  return routes?.map((route: ProfileRoutes) => {
+    if (route.subRoutes)
+      return (
+        <Route {...route} key={route.path}>
+          {generateUserRoute(route.subRoutes)}
+        </Route>
+      );
+    return <Route {...route} key={route.path} />;
+  });
+};
+
+const UserRoutes = ({ user }: IUserRoutes) => {
+  return (
+    <Routes>
+      <Route index element={<Home />} />
+      {!!user && generateUserRoute(generateRoutes(user, routerConfig))}
+      <Route path="*" element={<NoMatch />} />
+    </Routes>
+  );
+};
+
+export default function Main() {
   const navigate = useNavigate();
-
-
-
   const user = getUser();
   if (!user) navigate('/login');
 
-  return (
-    <Grid container>
-      <Grid item xs={12}>
-        <Navbar user={user} />
-      </Grid>
-      <Grid item xs={3} md={3} sm={2} lg={2} xl={2}>
-        <Menu />
-      </Grid>
-      <Grid item xs={9} md={9} sm={10} lg={10} xl={10}>
-        <Box sx={{ paddingLeft: 10, padding: 8, paddingTop: 14 }}>
-          <Paper sx={{ width: '100%', padding: 3, minHeight: '80vh' }}>
-            <Outlet />
-          </Paper>
+  const isVerySmall: boolean = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down('sm'),
+  );
+
+  return user ? (
+    <Box sx={{ display: 'flex' }}>
+      <Navbar user={user} />
+      {isVerySmall ? (
+        <SimpleBottomNavigation user={user} />
+      ) : (
+        <MenuTab user={user} />
+      )}
+      <Box component="main" sx={{ flexGrow: 1, p: { sm: 3, xs: 1 } }}>
+        <DrawerHeader />
+        <Box
+          sx={{
+            padding: { md: 4 },
+            paddingTop: { xs: 10 },
+            paddingBottom: { xs: 10, sm: 1 },
+            paddingLeft: { xs: 0, sm: 15, md: 17, lg: 20 },
+          }}
+        >
+          <UserRoutes user={user} />
+          <Outlet />
         </Box>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
+  ) : (
+    <NoMatch />
   );
 }

@@ -1,6 +1,7 @@
 import { VolumeUp } from '@mui/icons-material';
 import {
   Box,
+  FormHelperText,
   Grid,
   Input,
   Slider,
@@ -14,6 +15,7 @@ interface ISliderSteps extends IFormItem {
   step?: number;
   min?: number;
   max?: number;
+  valueLabelDisplay?: any;
 }
 
 export default function SliderSteps({
@@ -23,10 +25,11 @@ export default function SliderSteps({
   min = 0,
   max = 10,
   name,
+  valueLabelDisplay = 'off',
+  error,
 }: ISliderSteps) {
-  function valuetext(value: number) {
-    return `${value} min`;
-  }
+  const errorMessage = error && error[name];
+
   const defaultValueNormalized = defaultValue || min;
 
   const [value, setValue] = useState<number | string | Array<number | string>>(
@@ -37,52 +40,23 @@ export default function SliderSteps({
     setValue(newValue);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value === '' ? '' : Number(event.target.value));
-  };
-  const handleBlur = () => {
-    if (value < 0) {
-      setValue(0);
-    } else if (value > 100) {
-      setValue(100);
-    }
-  };
-
   return (
-    <Box sx={{ width: 250 }}>
-      <Typography id="input-slider" gutterBottom>
+    <Box width="100%">
+      <Typography id="input-slider" gutterBottom sx={{ paddingBottom: 5 }}>
         {label}
       </Typography>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs>
-          <Slider
-            step={step}
-            min={min}
-            max={max}
-            marks
-            value={typeof value === 'number' ? value : 0}
-            onChange={handleSliderChange}
-            aria-labelledby="input-slider"
-          />
-        </Grid>
-        <Grid item sx={{display:'flex'}}>
-          <Input
-            name={name}
-            value={value}
-            size="small"
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            inputProps={{
-              step: step,
-              min: min,
-              max: max,
-              type: 'number',
-              'aria-labelledby': 'input-slider',
-            }}
-          />
-          <Typography>min</Typography>
-        </Grid>
-      </Grid>
+      <Slider
+        name={name}
+        valueLabelDisplay={valueLabelDisplay}
+        step={step}
+        min={min}
+        max={max}
+        marks
+        value={typeof value === 'number' ? value : 0}
+        onChange={handleSliderChange}
+        aria-labelledby="input-slider"
+      />
+      <FormHelperText error={!!errorMessage}>{errorMessage}</FormHelperText>
     </Box>
   );
 }

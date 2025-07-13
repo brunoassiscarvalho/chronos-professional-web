@@ -1,11 +1,20 @@
+import { Box } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
+import { ptBR } from 'date-fns/locale';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { ReactNode } from 'react';
+
+interface ISmartForm {
+  onSubmit: (success: any, error?: any, action?: string) => void;
+  children: ReactNode;
+  validationSchema?: any;
+}
 
 export default function SmartForm({
   onSubmit,
   children,
   validationSchema,
-}: any) {
+}: ISmartForm) {
   function submitForm(form: any) {
     form.preventDefault();
 
@@ -35,9 +44,9 @@ export default function SmartForm({
     try {
       if (validationSchema)
         validationSchema.validateSync(formData, { abortEarly: false });
-      onSubmit(formData, null);
+      onSubmit(formData, null, form?.nativeEvent?.submitter?.name);
     } catch (err: any) {
-      const newError = err.inner.reduce((accError: any, error: any) => {
+      const newError = err?.inner?.reduce((accError: any, error: any) => {
         if (error.path.includes('].')) {
           accError[error.path.split('[').join('-').split('].').join('-')] =
             error.message;
@@ -47,14 +56,19 @@ export default function SmartForm({
 
         return accError;
       }, {});
-      console.log({ newError });
-      onSubmit(null, newError);
+      onSubmit(null, newError, form?.nativeEvent?.submitter?.name);
     }
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <form onSubmit={submitForm}>{children}</form>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
+      <Box
+        component="form"
+        onSubmit={submitForm}
+        sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+      >
+        <Box sx={{ width: '100%' }}>{children}</Box>
+      </Box>
     </LocalizationProvider>
   );
 }

@@ -1,25 +1,17 @@
-import {
-  List,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
-  Typography,
-  Divider,
-  Skeleton,
-  Grid,
-  Box,
-  Button,
-} from '@mui/material';
+import { Button, Box, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Content from '../../components/organisms/Content';
 import { IAppointment } from '../../interfaces/Appointment';
 import { useSnackbar } from 'notistack';
-import { formatHoursUTC, formatDateUTC } from '../../utils/Dates';
 import HttpException from '../../services/HttpException';
-import { Add } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import FullCalendar from '../../components/molecules/FullCalendar';
 import ScheduleService from './ScheduleService';
+import DialogModal from '../../components/organisms/DialogModal';
+import { useNavigate, useParams } from 'react-router-dom';
+import AppointmentDisplay from '../../components/molecules/AppointmentDisplay';
+import { getUser } from '../../utils/Api';
+import ProfessionalDisplay from '../../components/molecules/ProfessionalDisplay';
+import { IProfessional } from '../../interfaces/Professional';
 
 interface ISchedule {
   service?: ScheduleService;
@@ -28,17 +20,38 @@ interface ISchedule {
 export default function Schedule({
   service = new ScheduleService(),
 }: ISchedule) {
+  const user = getUser();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [isLoading, setIsloading] = useState<boolean>(true);
+  const { professionalId } = useParams<any>();
 
   const [appointments, setAppointments] = useState<IAppointment[]>();
+  const [event, setEvent] = useState<any>();
+  const [professional, setProfessional] = useState<IProfessional>();
 
   useEffect(() => {
+    if (professionalId) getProfessional();
+    getProfessionalSchedules();
+  }, []);
+
+  function getProfessional() {
+    if (professionalId)
+      service
+        .getProfessional(professionalId)
+        .then((res: IProfessional) => {
+          setProfessional(res);
+        })
+        .catch((err: HttpException) => {
+          enqueueSnackbar(err.message, { variant: 'error' });
+        });
+  }
+
+  function getProfessionalSchedules() {
+    const query = professionalId ? { professional: professionalId } : undefined;
     service
-      .getNextSchedule()
-      .then((res: any) => {
-        console.log('getNextSchedule', res);
+      .getNextSchedule(query)
+      .then((res: IAppointment[]) => {
         setAppointments(res);
       })
       .catch((err: HttpException) => {
@@ -47,79 +60,96 @@ export default function Schedule({
       .finally(() => {
         setIsloading(false);
       });
-  }, []);
+  }
+
+  function onSelectEvent({ end, start, extendedProps }: any) {
+    setEvent({ end, start, extendedProps });
+  }
 
   return (
-    <Content title="Agenda" withoutGoBack>
-      {isLoading ? (
-        <>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Skeleton variant="rectangular" width={600} height={80} />
-            </Grid>
-            <Grid item xs={12}>
-              <Skeleton variant="rectangular" width={600} height={80} />
-            </Grid>
-            <Grid item xs={12}>
-              <Skeleton variant="rectangular" width={600} height={80} />
-            </Grid>
-          </Grid>
-        </>
-      ) : (
-        <>
-          <Button onClick={() => navigate('/main/nova-agenda')}>
-            <Add /> Horários Disponíveis
-          </Button>
-          <List sx={{ width: '100%', maxWidth: 600 }}>
-            {appointments?.map((appointment: IAppointment) => (
-              <Box key={appointment._id}>
-                <ListItem alignItems="flex-start">
-                  <ListItemAvatar>
-                    <Avatar
-                      alt="Remy Sharp"
-                      src="/static/images/avatar/1.jpg"
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={formatDateUTC(appointment.start)}
-                    secondary={
-                      <>
-                        <Typography
-                          sx={{ display: 'inline' }}
-                          component="span"
-                          variant="body2"
-                          color="text.primary"
-                        >
-                          {`${formatHoursUTC(
-                            appointment.start,
-                          )} - ${formatHoursUTC(appointment.end)}`}
-                        </Typography>
-                      </>
-                    }
-                  />
-                  <ListItemText
-                    primary="Teleconsulta"
-                    secondary={
-                      <>
-                        <Typography
-                          sx={{ display: 'inline' }}
-                          component="span"
-                          variant="body2"
-                          color="text.primary"
-                        >
-                          {appointment.professional.name}
-                        </Typography>
-                        {` - ${appointment.professional.position}`}
-                      </>
-                    }
-                  />
-                </ListItem>
-                <Divider variant="inset" component="li" />
-              </Box>
-            ))}
-          </List>
-        </>
-      )}
+    <Content title="Agenda" isLoading={isLoading} loadingListSize={9}>
+      <Stack
+        spacing={3}
+        width="100%"
+        justifyContent="space-between"
+        paddingBottom={3}
+      >
+        {professional && <ProfessionalDisplay {...professional} />}
+        {user.position !== 'concierge' && (
+          <Box display="flex" justifyContent="space-between">
+            <Stack direction="row" spacing={3} width="100%">
+              <Button onClick={() => navigate('/main/incluir-horarios')}>
+                Liberar horários
+              </Button>
+              <Button onClick={() => navigate('/main/appointment-new')}>
+                Consulta Avulsa
+              </Button>
+            </Stack>
+            <Button onClick={() => navigate('/main/excluir-horarios')}>
+              Excluir horários
+            </Button>
+          </Box>
+        )}
+      </Stack>
+      <FullCalendar
+        onSelectEvent={onSelectEvent}
+        events={appointments}
+        selectable
+      />
+
+      <DialogModal
+        title={
+          event?.extendedProps?.patient
+            ? 'Horário agendado'
+            : 'Horário disponível'
+        }
+        open={!!event}
+        onClose={() => {
+          setEvent(undefined);
+        }}
+        actions={
+          event?.extendedProps?.patient ? (
+            <>
+              <Button
+                onClick={() =>
+                  navigate(
+                    `/main/tele-atendimento/${event?.extendedProps?._id}`,
+                  )
+                }
+              >
+                Iniciar consulta
+              </Button>
+              <Button
+                onClick={() =>
+                  navigate(
+                    `/main/appointment/${event?.extendedProps?._id}/cancel`,
+                  )
+                }
+              >
+                Cancelar agendamento
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={() =>
+                  navigate(
+                    `/main/appointment/${event?.extendedProps?._id}/book`,
+                  )
+                }
+              >
+                Realizar agendamento
+              </Button>
+            </>
+          )
+        }
+      >
+        {event && (
+          <>
+            <AppointmentDisplay appointment={event.extendedProps} />
+          </>
+        )}
+      </DialogModal>
     </Content>
   );
 }

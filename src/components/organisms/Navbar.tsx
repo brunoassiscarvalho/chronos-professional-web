@@ -1,64 +1,40 @@
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import { logoUrl } from '../../utils/Constants';
-import {
-  Avatar,
-  Box,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-} from '@mui/material';
+import { Box } from '@mui/material';
 import { memo } from 'react';
-import { formatDateUTC, formatHoursUTC } from '../../utils/Dates';
-import { IProfessionalBasic } from '../../interfaces/Professional';
-
-interface IUser {
-  email: string;
-  name: string;
-  urlImage: string;
-}
+import { IProfessionalLogged } from '../../interfaces/Professional';
+import AccountMenu from './AccountMenu';
 
 interface INavBar {
-  user: IProfessionalBasic;
+  user: IProfessionalLogged;
 }
 
-export default memo(function NavBar({ user }: INavBar) {
+function userEmailPropsAreEqual(prevUser: INavBar, nextUser: INavBar) {
+  return prevUser.user.userId === nextUser.user.userId;
+}
+
+function NavBar({ user }: INavBar) {
   return (
     <AppBar
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
       position="fixed"
-      elevation={3}
+      elevation={1}
       color="inherit"
     >
       <Toolbar>
         <Box component="img" src={logoUrl} height={40} margin={2} />
         <Box sx={{ flexGrow: 1 }} />
-
         {user && (
           <Box>
-            <ListItem alignItems="flex-start">
-              <ListItemText primary={user.name} secondary={user.position} />
-              <ListItemAvatar>
-                <Avatar
-                  sx={{ marginLeft: 2 }}
-                  alt={user.name || user.email}
-                  // src={user.urlImage}
-                />
-              </ListItemAvatar>
-            </ListItem>
+            <AccountMenu user={user} />
           </Box>
         )}
       </Toolbar>
     </AppBar>
   );
-}, userEmailPropsAreEqual);
-
-function userEmailPropsAreEqual(prevUser: any, nextUser: any) {
-  return (
-    prevUser.user.email === nextUser.user.email &&
-    prevUser.user.name === nextUser.user.name
-  );
 }
+
+export default memo(NavBar, userEmailPropsAreEqual);

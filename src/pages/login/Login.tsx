@@ -8,7 +8,6 @@ import {
   Button,
   Paper,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import { useNavigate } from 'react-router-dom';
 import LoginService from './LoginService';
 import HttpException from '../../services/HttpException';
@@ -18,7 +17,7 @@ import { logoUrl } from '../../utils/Constants';
 import { setSession } from '../../utils/Api';
 import InputText from '../../components/molecules/inputs/InputText';
 
-const useStyles = makeStyles(() => ({
+const classes = {
   root: {
     height: '100vh',
   },
@@ -37,7 +36,7 @@ const useStyles = makeStyles(() => ({
   form: {
     width: '100%',
   },
-}));
+};
 
 interface ILogin {
   loginService?: LoginService;
@@ -46,7 +45,6 @@ interface ILogin {
 export default function Login({
   loginService = new LoginService(),
 }: ILogin): JSX.Element {
-  const classes = useStyles();
   const navigate = useNavigate();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -54,7 +52,6 @@ export default function Login({
   const [isSending, setIsSending] = useState(false);
 
   const loginHandler = (data: any) => {
-    console.log(data);
     setIsSending(true);
     loginService
       .login(data)
@@ -63,7 +60,6 @@ export default function Login({
         navigate('/main');
       })
       .catch((e: HttpException) => {
-        // if (e.internalCode === 'LOGIN002') navigate('external/resend-mail-avalidation');
         enqueueSnackbar(e.message, { variant: 'error' });
       })
       .finally(() => {
@@ -72,17 +68,26 @@ export default function Login({
   };
 
   return (
-    <Grid container className={classes.root}>
-      <Grid item xs={false} sm={4} md={7} className={classes.image} />
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-        <Stack padding={10} spacing={3}>
+    <Grid container sx={classes.root}>
+      <Grid item xs={false} sm={4} md={7} sx={classes.image} />
+      <Grid
+        item
+        xs={12}
+        sm={8}
+        md={5}
+        component={Paper}
+        elevation={6}
+        square
+        sx={{ display: 'flex', justifyContent: 'center', paddingTop: 10 }}
+      >
+        <Stack padding={2} spacing={3} maxWidth={500}>
           <Box component="img" src={logoUrl} />
           <Typography component="h1" variant="h5">
             Escritório
           </Typography>
           {!isSending ? (
             <SmartForm onSubmit={loginHandler}>
-              <Stack padding={10} spacing={3}>
+              <Stack spacing={3}>
                 <InputText
                   label="Email"
                   name="email"
@@ -98,12 +103,6 @@ export default function Login({
                   validations={{ required: 'Obrigatório' }}
                 />
                 <Button type="submit">Entrar</Button>
-                <Button
-                  color="secondary"
-                  onClick={() => navigate('/external/new-user')}
-                >
-                  Novo
-                </Button>
               </Stack>
             </SmartForm>
           ) : (

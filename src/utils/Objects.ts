@@ -4,7 +4,7 @@ export function createNestedObjectArray(
   nameArrayField: string | number,
   value: any,
 ) {
-  const accFormData:any = {};
+  const accFormData: any = {};
 
   if (arrayName && indexArrayItem && nameArrayField) {
     if (!accFormData[arrayName]) {

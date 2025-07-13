@@ -1,22 +1,27 @@
-import { IProfessionalBasicData } from './Professional';
+import { IPatient } from './Patient';
+import { IProfessional } from './Professional';
 
-// export interface IAppointmentData {}
-// export interface IAppointment<T> {
-//   title: string;
-//   start: Date;
-//   end: Date;
-//   resource: T;
-// }
+export type IBasicProfessional = Pick<
+  IProfessional,
+  '_id' | 'name' | 'position' | 'image'
+>;
+
+export type IBasicPatient = Pick<IPatient, '_id' | 'name' | 'image'>;
 
 export interface IAppointmentBasic {
-  title: string;
+  title?: string;
   start: Date;
   end: Date;
-  professional: IProfessionalBasicData;
-  patient?: IProfessionalBasicData;
+  professional: IBasicProfessional;
+  patient?: IBasicPatient;
   status?: string;
 }
 
 export interface IAppointment extends IAppointmentBasic {
-  _id: string;
+  _id?: string;
 }
+
+export type IActionAppointment = Pick<
+  IAppointmentBasic,
+  'title' | 'start' | 'end'
+> & { action: 'include' | 'exclude' };

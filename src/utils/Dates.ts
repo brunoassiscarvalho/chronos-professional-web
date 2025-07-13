@@ -1,19 +1,28 @@
-import moment from 'moment';
-import { ptBR , enUS} from 'date-fns/locale';
+import { ptBR, enUS } from 'date-fns/locale';
 import addHours from 'date-fns/addHours';
 import startOfHour from 'date-fns/startOfHour';
+import { differenceInCalendarYears, format } from 'date-fns';
 
-export function converteDateUtcToFormat(format: string, date: Date) {
-  moment.locale('pt-br');
-  return moment.utc(date).format(format);
+export function converteDateBars(date: Date) {
+  return new Date(date).toLocaleString('pt-br', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  });
 }
 
-export function formatDateUTC(date: Date): string {
-  return converteDateUtcToFormat('DD/MM/YYYY', date);
+export function longDate(date: Date) {
+  return new Date(date).toLocaleString('pt-br', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
-export function formatHoursUTC(date: Date): string {
-  return converteDateUtcToFormat('HH:mm', date);
+export function formatOnlyHours(date: Date): string {
+  return new Date(date).toLocaleString('pt-BR', {
+    timeStyle: 'short',
+  });
 }
 
 export const locales = {
@@ -22,6 +31,12 @@ export const locales = {
 };
 export const endOfHour = (date: Date): Date => addHours(startOfHour(date), 1);
 
+export const ageByBirthDate = (birthDate: Date) => {
+  return differenceInCalendarYears(new Date(), new Date(birthDate));
+};
 
-
-
+export function concatDateAndTime(date: Date, time: Date): Date {
+  return new Date(
+    `${format(new Date(date), 'MM/dd/yyyy')} ${format(new Date(time), 'H:mm')}`,
+  );
+}
