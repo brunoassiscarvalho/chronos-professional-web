@@ -6,10 +6,10 @@ export const AnamneseStatus = {
 };
 
 export type AnamneseStatus =
-  typeof AnamneseStatus[keyof typeof AnamneseStatus]['value'];
+  (typeof AnamneseStatus)[keyof typeof AnamneseStatus]['value'];
 
 export function literalAnamneseStatus(value: AnamneseStatus): string {
-  return AnamneseStatus[value.toUpperCase() as keyof typeof AnamneseStatus]
+  return AnamneseStatus[value?.toUpperCase() as keyof typeof AnamneseStatus]
     ?.text;
 }
 

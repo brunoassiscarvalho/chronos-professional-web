@@ -23,7 +23,7 @@ export const arrayPositions = arrayObjectsPositions();
 export type Positions = (typeof Positions)[keyof typeof Positions]['value'];
 
 export function literalPosition(value: Positions) {
-  return Positions[value.toUpperCase() as keyof typeof Positions]?.text;
+  return Positions[value?.toUpperCase() as keyof typeof Positions]?.text;
 }
 
 export const Roles = {
@@ -48,5 +48,5 @@ export const arrayRoles = arrayObjectsRoles();
 export type Roles = (typeof Roles)[keyof typeof Roles]['value'];
 
 export function literalRole(value: Roles) {
-  return Roles[value.toUpperCase() as keyof typeof Roles]?.text;
+  return Roles[value?.toUpperCase() as keyof typeof Roles]?.text;
 }

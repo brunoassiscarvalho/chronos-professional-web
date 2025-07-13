@@ -5,10 +5,11 @@ export const PaperStatus = {
   COMPLETED: { text: 'Concluida', value: lit('completed') },
 };
 
-export type PaperStatus = typeof PaperStatus[keyof typeof PaperStatus]['value'];
+export type PaperStatus =
+  (typeof PaperStatus)[keyof typeof PaperStatus]['value'];
 
 export function literalPaperStatus(value: PaperStatus): string {
-  return PaperStatus[value.toUpperCase() as keyof typeof PaperStatus]?.text;
+  return PaperStatus[value?.toUpperCase() as keyof typeof PaperStatus]?.text;
 }
 
 export const enumPaperStatus = Object.entries(PaperStatus).map(
